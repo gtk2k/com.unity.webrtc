@@ -4,6 +4,11 @@ platforms:
     image: renderstreaming/win10:v0.1.2-276056
     flavor: b1.xlarge
     build_command: BuildScripts~/build_libwebrtc.cmd
+  - name: mac
+    type: Unity::VM::osx
+    image: buildfarm/mac:stable
+    flavor: m1.mac  
+    build_command: BuildScripts~/build_libwebrtc_macos.sh
 projects:
   - name: libwebrtc    
 ---
