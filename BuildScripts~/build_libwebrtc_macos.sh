@@ -36,4 +36,6 @@ for item in ${array[@]}; do
   find . -name $item | xargs -J% cp % "$ARTIFACTS_DIR/lib"
 done
 
+# create zip
+cd "$ARTIFACTS_DIR"
 zip -r webrtc-mac.zip *
