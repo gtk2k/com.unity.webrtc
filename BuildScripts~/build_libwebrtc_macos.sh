@@ -14,10 +14,10 @@ fetch webrtc
 cd src
 git config --system core.longpaths true
 git branch -r
-git checkout -b my_branch "refs/remotes/branch-heads/$(WEBRTC_VERSION)"
+git checkout -b my_branch "refs/remotes/branch-heads/$WEBRTC_VERSION"
 cd ..
 
 gclient sync -f
 
-gn gen "$(OUTPUT_DIR)" --root="src" --args="is_debug=false is_clang=false target_cpu=\"x64\" symbol_level=0 enable_iterator_debugging=false"
-ninja -C "$(OUTPUT_DIR)"
+gn gen "$OUTPUT_DIR" --root="src" --args="is_debug=false is_clang=false target_cpu=\"x64\" symbol_level=0 enable_iterator_debugging=false"
+ninja -C "$OUTPUT_DIR"
