@@ -19,5 +19,5 @@ cd ..
 
 gclient sync -f
 
-gn gen "$OUTPUT_DIR" --root="src" --args="is_debug=false is_clang=false target_cpu=\"x64\" symbol_level=0 enable_iterator_debugging=false"
+gn gen "$OUTPUT_DIR" --root="src" --args="is_debug=false target_cpu=\"x64\" rtc_include_tests=false rtc_build_examples=false symbol_level=0 enable_iterator_debugging=false"
 ninja -C "$OUTPUT_DIR"
