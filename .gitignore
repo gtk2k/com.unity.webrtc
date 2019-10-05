@@ -349,12 +349,14 @@ MigrationBackup/
 # Exclude Samples folder
 !Samples~
 
+# Exclude BuildScripts
+!BuildScripts~
+
 # Exclude webrtc source 
 Plugin/webrtc
 
 # Exclude imported samples
 Assets/Samples.meta
 Assets/Samples/
-
 
 
