@@ -4,7 +4,7 @@ if not exist depot_tools (
 git clone --depth 1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
 )
 
-set PATH=%cd%\depot_tools;%cd%;%PATH%
+set PATH=%cd%\depot_tools;%cd%\BuildScripts~;%PATH%
 set WEBRTC_VERSION=77
 set DEPOT_TOOLS_WIN_TOOLCHAIN=0
 set CPPFLAGS=/WX-
