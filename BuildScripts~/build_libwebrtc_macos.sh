@@ -7,7 +7,7 @@ fi
 
 export PATH="$(pwd)/depot_tools:$PATH"
 export WEBRTC_VERSION=77
-export OUTPUT_DIR=out
+export OUTPUT_DIR="$(pwd)/out"
 export ARTIFACTS_DIR="$(pwd)/artifacts"
 
 fetch webrtc
