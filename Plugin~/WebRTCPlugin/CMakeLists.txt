@@ -21,12 +21,13 @@ if(MSVC)
 elseif(APPLE OR UNIX)
   # Update if necessary
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-long-long -pedantic")
-  # target_compile_options(webrtc PUBLIC -Wall)
 endif()
 
 if(MACOS)
   add_library(webrtc)
-  set_target_properties(${name} PROPERTIES BUNDLE ON)
+  set_target_properties(webrtc PROPERTIES BUNDLE ON)
+  target_compile_definitions(webrtc PUBLIC WEBRTC_POSIX)
+  target_compile_definitions(webrtc PUBLIC WEBRTC_MAC)
 else()
   add_library(webrtc)
   set_target_properties(${name} PROPERTIES PREFIX "")
@@ -53,7 +54,12 @@ find_library(libwebrtc
   )
 
 target_include_directories(webrtc
-        PRIVATE ../webrtc/include ../webrtc/include/third_party/abseil-cpp
+        PRIVATE
+        ../unity/include
+        ../webrtc/include
+        ../webrtc/include/third_party/abseil-cpp
+        ../webrtc/include/third_party/jsoncpp/source/include
+        ../webrtc/include/third_party/jsoncpp/generated
         )
 
 target_link_libraries(webrtc

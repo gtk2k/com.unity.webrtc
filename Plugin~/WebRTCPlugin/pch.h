@@ -22,11 +22,9 @@
 #include "rtc_base/ref_counted_object.h"
 #include "rtc_base/strings/json.h"
 #include "rtc_base/logging.h"
-//#include "rtc_base/flags.h"
+
 #include "rtc_base/checks.h"
 #include "rtc_base/ssl_adapter.h"
-#include "rtc_base/win32_socket_init.h"
-#include "rtc_base/win32_socket_server.h"
 #include "rtc_base/arraysize.h"
 #include "rtc_base/net_helpers.h"
 #include "rtc_base/string_utils.h"
@@ -34,8 +32,14 @@
 #include "rtc_base/signal_thread.h"
 #include "rtc_base/third_party/sigslot/sigslot.h"
 #include "rtc_base/atomic_ops.h"
+
+#if defined(_WIN32)
 #include "rtc_base/win32.h"
 #include "rtc_base/win32_socket_server.h"
+#include "rtc_base/win32_socket_init.h"
+#include "rtc_base/win32_socket_server.h"
+#endif
+
 #include "rtc_base/async_tcp_socket.h"
 
 //#include "media/base/videocapturer.h"
@@ -57,6 +61,7 @@
 #include "common_video/h264/h264_common.h"
 
 #include "media/base/video_broadcaster.h"
+
 #pragma endregion
 #if defined(_WIN32)
 #include "d3d11.h"
@@ -82,7 +87,13 @@ namespace WebRTC
         snprintf(buf.get(), size, format.c_str(), args ...);
         return std::string(buf.get(), buf.get() + size - 1);
     }
+
+#if defined(_WIN32)
     using UnityFrameBuffer = ID3D11Texture2D;
+#else
+    using UnityFrameBuffer = void*;
+#endif
+
     using uint8 = unsigned char;
     using uint16 = unsigned short int;
     using uint32 = unsigned int;
@@ -94,6 +105,8 @@ namespace WebRTC
 
     const uint32 bufferedFrameNum = 3;
     extern UnityFrameBuffer* renderTextures[bufferedFrameNum];
+#if defined(_WIN32)
     extern ID3D11DeviceContext* context;
     extern ID3D11Device* g_D3D11Device;
+#endif
 }
