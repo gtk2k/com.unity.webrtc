@@ -38,7 +38,7 @@ REM update LIB_TO_LICENSES_DICT in generate_licenses.py
 powershell -File ".\BuildScripts~\ReplaceText.ps1" "src\tools_webrtc\libs\generate_licenses.py" "'ow2_asm': []," "'ow2_asm': [], 'winsdk_samples': [], 'googletest': ['third_party/googletest/src/LICENSE'], 'nasm': ['third_party/nasm/LICENSE'], "
 type "src\tools_webrtc\libs\generate_licenses.py"
 
-ninja.exe -C %OUTPUT_DIR%
+ninja.exe -C %OUTPUT_DIR% default_task_queue_factory
 
 REM generate license
 call python.bat .\src\tools_webrtc\libs\generate_licenses.py --target //:default %OUTPUT_DIR% %OUTPUT_DIR%
