@@ -5,6 +5,9 @@ namespace WebRTC
     class DummyAudioDevice : public webrtc::AudioDeviceModule
     {
     public:
+        DummyAudioDevice(webrtc::TaskQueueFactory& factory);
+        ~DummyAudioDevice() override {};
+
         void ProcessAudioData(const float* data, int32 size);
 
         //webrtc::AudioDeviceModule
@@ -24,7 +27,7 @@ namespace WebRTC
         // Main initialization and termination
         virtual int32 Init() override
         {
-            deviceBuffer = std::make_unique<webrtc::AudioDeviceBuffer>();
+            deviceBuffer = std::make_unique<webrtc::AudioDeviceBuffer>(&this->taskQueueFactory);
             started = true;
             return 0;
         }
@@ -291,5 +294,7 @@ namespace WebRTC
         std::atomic<bool> started = false;
         std::atomic<bool> isRecording = false;
         std::vector<int16> convertedAudioData;
+        webrtc::TaskQueueFactory& taskQueueFactory;
+
     };
 }

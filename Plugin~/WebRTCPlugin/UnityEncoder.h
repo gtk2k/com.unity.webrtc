@@ -8,6 +8,7 @@ namespace WebRTC
         UnityEncoder();
         virtual ~UnityEncoder();
         sigslot::signal1<std::vector<uint8>&> captureFrame;
+        sigslot::signal1<int> captureFrame1;
         virtual void SetRate(uint32 rate) = 0;
         virtual void UpdateSettings(int width, int height) = 0;
         virtual void EncodeFrame(int width, int height) = 0;

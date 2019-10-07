@@ -3,32 +3,32 @@
 namespace WebRTC
 {
     class UnityEncoder;
-    class UnityVideoCapturer : public cricket::VideoCapturer
+    class UnityVideoCapturer : public rtc::AdaptedVideoTrackSource
     {
     public:
         UnityVideoCapturer(UnityEncoder* pEncoder, int _width, int _height);
         void EncodeVideoData();
-        // Start the video capturer with the specified capture format.
-        virtual cricket::CaptureState Start(const cricket::VideoFormat& Format) override
-        {
-            return cricket::CS_RUNNING;
-        }
-        // Stop the video capturer.
-        virtual void Stop() override
-        {
-            captureStopped = true;
-        }
-        // Check if the video capturer is running.
-        virtual bool IsRunning() override
-        {
-            return true;
-        }
         // Returns true if the capturer is screencasting. This can be used to
         // implement screencast specific behavior.
-        virtual bool IsScreencast() const override
+        virtual bool is_screencast() const override
         {
             return false;
         }
+
+        virtual absl::optional<bool> needs_denoising() const override
+        {
+            return false;
+        }
+
+        webrtc::MediaSourceInterface::SourceState state() const override
+        {
+            return SourceState::kLive;
+        }
+        bool remote() const override
+        {
+            return false;
+        }
+
         void StartEncoder();
         void InitializeEncoder();
         void SetKeyFrame();
@@ -38,13 +38,6 @@ namespace WebRTC
     public:
         UnityFrameBuffer* unityRT = nullptr;
     private:
-        // subclasses override this virtual method to provide a vector of fourccs, in
-        // order of preference, that are expected by the media engine.
-        bool GetPreferredFourccs(std::vector<uint32>* fourccs) override
-        {
-            fourccs->push_back(cricket::FOURCC_H264);
-            return true;
-        }
         UnityEncoder* nvEncoder;
 
         //just fake info

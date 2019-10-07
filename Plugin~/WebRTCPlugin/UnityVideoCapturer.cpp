@@ -6,8 +6,8 @@ namespace WebRTC
 {
     UnityVideoCapturer::UnityVideoCapturer(UnityEncoder* pEncoder, int _width, int _height) : nvEncoder(pEncoder), width(_width), height(_height)
     {
-        set_enable_video_adapter(false);
-        SetSupportedFormats(std::vector<cricket::VideoFormat>(1, cricket::VideoFormat(width, height, cricket::VideoFormat::FpsToInterval(framerate), cricket::FOURCC_H264)));
+//        set_enable_video_adapter(false);
+//        SetSupportedFormats(std::vector<cricket::VideoFormat>(1, cricket::VideoFormat(width, height, cricket::VideoFormat::FpsToInterval(framerate), cricket::FOURCC_H264)));
     }
     void UnityVideoCapturer::EncodeVideoData()
     {
@@ -23,7 +23,7 @@ namespace WebRTC
         int64 timestamp = rtc::TimeMillis();
         webrtc::VideoFrame videoFrame{buffer, webrtc::VideoRotation::kVideoRotation_0, timestamp};
         videoFrame.set_ntp_time_ms(timestamp);
-        OnFrame(videoFrame, width, height);
+        OnFrame(videoFrame);
     }
     void UnityVideoCapturer::StartEncoder()
     {
@@ -41,6 +41,6 @@ namespace WebRTC
 
     void UnityVideoCapturer::InitializeEncoder()
     {
-        nvEncoder->captureFrame.connect(this, &UnityVideoCapturer::CaptureFrame);
+        // nvEncoder->captureFrame.connect(this, &UnityVideoCapturer::CaptureFrame);
     }
 }

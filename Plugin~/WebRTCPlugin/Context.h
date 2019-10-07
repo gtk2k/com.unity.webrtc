@@ -63,6 +63,7 @@ namespace WebRTC
         int m_uid;
         std::unique_ptr<rtc::Thread> workerThread;
         std::unique_ptr<rtc::Thread> signalingThread;
+        std::unique_ptr<webrtc::TaskQueueFactory> taskQueueFactory;
         std::map<PeerConnectionObject*, rtc::scoped_refptr<PeerConnectionObject>> clients;
         rtc::scoped_refptr<webrtc::PeerConnectionFactoryInterface> peerConnectionFactory;
         DummyVideoEncoderFactory* pDummyVideoEncoderFactory;

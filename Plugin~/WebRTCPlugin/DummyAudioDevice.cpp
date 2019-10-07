@@ -3,6 +3,10 @@
 
 namespace WebRTC
 {
+    DummyAudioDevice::DummyAudioDevice(webrtc::TaskQueueFactory& factory) : taskQueueFactory(factory)
+    {
+    }
+
     void DummyAudioDevice::ProcessAudioData(const float* data, int32 size)
     {
         if (started && isRecording)

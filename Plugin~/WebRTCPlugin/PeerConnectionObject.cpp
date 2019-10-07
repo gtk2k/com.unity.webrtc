@@ -202,8 +202,8 @@ namespace WebRTC
         webrtc::PeerConnectionInterface::RTCConfiguration _config;
         Convert(config, _config);
 
-        webrtc::RTCError error;
-        if (!connection->SetConfiguration(_config, &error))
+        webrtc::RTCError error = connection->SetConfiguration(_config);
+        if (!error.ok())
         {
             LogPrint(error.message());
         }
@@ -229,8 +229,8 @@ namespace WebRTC
             }
             root["iceServers"].append(jsonIceServer);
         }
-        Json::FastWriter writer;
-        config = writer.write(root);
+        Json::StreamWriterBuilder builder;
+        config = Json::writeString(builder, root);
     }
 
     void PeerConnectionObject::CreateOffer(const RTCOfferOptions & options)

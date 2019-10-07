@@ -219,9 +219,11 @@ namespace WebRTC
     void Convert(const std::string& str, webrtc::PeerConnectionInterface::RTCConfiguration& config)
     {
         config = webrtc::PeerConnectionInterface::RTCConfiguration{};
-        Json::Reader jsonReader;
+        Json::CharReaderBuilder builder;
+        Json::CharReader* jsonReader = builder.newCharReader();
         Json::Value configJson;
-        jsonReader.parse(str, configJson);
+        std::string errors;
+        jsonReader->parse(str.c_str(), str.c_str() + str.size(), &configJson, &errors);
         Json::Value iceServersJson = configJson["iceServers"];
         if (!iceServersJson)
             return;
@@ -279,14 +281,15 @@ namespace WebRTC
     Context::Context(int uid)
         : m_uid(uid)
     {
-        workerThread.reset(new rtc::Thread());
+        workerThread = rtc::Thread::Create();
         workerThread->Start();
-        signalingThread.reset(new rtc::Thread());
+        signalingThread = rtc::Thread::Create();
         signalingThread->Start();
 
         rtc::InitializeSSL();
 
-        audioDevice = new rtc::RefCountedObject<DummyAudioDevice>();
+        taskQueueFactory = webrtc::CreateDefaultTaskQueueFactory();
+        audioDevice = new rtc::RefCountedObject<DummyAudioDevice>(taskQueueFactory.get());
 
         auto dummyVideoEncoderFactory = std::make_unique<DummyVideoEncoderFactory>();
         pDummyVideoEncoderFactory = dummyVideoEncoderFactory.get();
@@ -334,7 +337,7 @@ namespace WebRTC
         //TODO::
         for (std::list<UnityVideoCapturer*>::iterator it = nvVideoCapturerList.begin(); it != nvVideoCapturerList.end(); ++it)
         {
-            (*it)->Stop();
+            //(*it)->Stop();
         }
     }
 
@@ -359,12 +362,12 @@ namespace WebRTC
 
     webrtc::MediaStreamTrackInterface* Context::CreateVideoTrack(const std::string& label, UnityFrameBuffer* frameBuffer, int32 width, int32 height, int32 bitRate)
     {
-        UnityEncoder* pUnityEncoder = pDummyVideoEncoderFactory->CreatePlatformEncoder(WebRTC::Nvidia, width, height, bitRate);
-        UnityVideoCapturer* pUnityVideoCapturer = new UnityVideoCapturer(pUnityEncoder, width, height);
+        auto pUnityEncoder = pDummyVideoEncoderFactory->CreatePlatformEncoder(WebRTC::Nvidia, width, height, bitRate);
+        auto pUnityVideoCapturer = new rtc::RefCountedObject<UnityVideoCapturer>(pUnityEncoder, width, height);
         pUnityVideoCapturer->InitializeEncoder();
         pDummyVideoEncoderFactory->AddCapturer(pUnityVideoCapturer);
-
-        auto videoTrack = peerConnectionFactory->CreateVideoTrack(label, peerConnectionFactory->CreateVideoSource(pUnityVideoCapturer));
+        auto videoSource = webrtc::VideoTrackSourceProxy::Create(signalingThread.get(), workerThread.get(), pUnityVideoCapturer);
+        auto videoTrack = peerConnectionFactory->CreateVideoTrack(label, videoSource);
         pUnityVideoCapturer->unityRT = frameBuffer;
         pUnityVideoCapturer->StartEncoder();
 

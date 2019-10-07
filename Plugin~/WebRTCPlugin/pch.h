@@ -3,6 +3,7 @@
 #include "api/media_stream_interface.h"
 #include "api/peer_connection_interface.h"
 #include "api/create_peerconnection_factory.h"
+#include "api/video_track_source_proxy.h"
 #include "api/audio_codecs/audio_decoder_factory_template.h"
 #include "api/audio_codecs/audio_encoder_factory_template.h"
 #include "api/audio_codecs/opus/audio_decoder_opus.h"
@@ -17,6 +18,9 @@
 #include "api/video/video_frame.h"
 #include "api/video/video_frame_buffer.h"
 #include "api/video/i420_buffer.h"
+
+#include "api/task_queue/default_task_queue_factory.h"
+#include "api/task_queue/task_queue_factory.h"
 
 #include "rtc_base/thread.h"
 #include "rtc_base/ref_counted_object.h"
@@ -51,6 +55,7 @@
 #include "media/base/media_channel.h"
 #include "media/base/video_common.h"
 
+#include "modules/video_capture/video_capture.h"
 #include "modules/video_capture/video_capture_factory.h"
 #include "modules/audio_device/include/audio_device.h"
 #include "modules/audio_device/audio_device_buffer.h"
