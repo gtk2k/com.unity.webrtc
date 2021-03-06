@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Runtime.InteropServices;
 
@@ -33,6 +34,9 @@ namespace Unity.WebRTC
             }
             if (self != IntPtr.Zero && !WebRTC.Context.IsNull)
             {
+#if UNITY_WEBGL
+                NativeMethods.DeleteSender(self);
+#endif
                 WebRTC.Table.Remove(self);
                 self = IntPtr.Zero;
             }
@@ -48,10 +52,15 @@ namespace Unity.WebRTC
         public static RTCRtpCapabilities GetCapabilities(TrackKind kind)
         {
             WebRTC.Context.GetSenderCapabilities(kind, out IntPtr ptr);
+#if !UNITY_WEBGL
             RTCRtpCapabilitiesInternal capabilitiesInternal =
                 Marshal.PtrToStructure<RTCRtpCapabilitiesInternal>(ptr);
             RTCRtpCapabilities capabilities = new RTCRtpCapabilities(capabilitiesInternal);
             Marshal.FreeHGlobal(ptr);
+#else
+            var capabilitiesJson = ptr.AsAnsiStringWithFreeMem();
+            var capabilities = JsonConvert.DeserializeObject<RTCRtpCapabilities>(capabilitiesJson);
+#endif
             return capabilities;
         }
 

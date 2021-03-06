@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -91,20 +92,34 @@ namespace Unity.WebRTC
             IntPtr ptr, ref RTCSessionDescription desc)
         {
             IntPtr ptrError = IntPtr.Zero;
+#if !UNITY_WEBGL
             RTCErrorType errorType = NativeMethods.PeerConnectionSetLocalDescription(
                 self, ptr, ref desc, ref ptrError);
             string message = ptrError != IntPtr.Zero ? ptrError.AsAnsiStringWithFreeMem() : null;
-            return new RTCError { errorType =  errorType, message = message};
+            return new RTCError { errorType = errorType, message = message};
+#else
+            RTCErrorType errorType = NativeMethods.PeerConnectionSetLocalDescription(
+                self, ptr, desc.type, desc.sdp);
+            // TODO
+            return new RTCError { errorType = errorType, message = "error" };
+#endif
         }
 
         public RTCError PeerConnectionSetRemoteDescription(
             IntPtr ptr, ref RTCSessionDescription desc)
         {
             IntPtr ptrError = IntPtr.Zero;
+#if !UNITY_WEBGL
             RTCErrorType errorType = NativeMethods.PeerConnectionSetRemoteDescription(
                 self, ptr, ref desc, ref ptrError);
             string message = ptrError != IntPtr.Zero ? ptrError.AsAnsiStringWithFreeMem() : null;
             return new RTCError { errorType =  errorType, message = message};
+#else
+            RTCErrorType errorType = NativeMethods.PeerConnectionSetRemoteDescription(
+                self, ptr, desc.type, desc.sdp);
+            // TODO
+            return new RTCError { errorType = errorType, message = "error" };
+#endif
         }
 
         public void PeerConnectionRegisterOnSetSessionDescSuccess(IntPtr ptr, DelegateNativePeerConnectionSetSessionDescSuccess callback)
@@ -119,7 +134,12 @@ namespace Unity.WebRTC
 
         public IntPtr CreateDataChannel(IntPtr ptr, string label, ref RTCDataChannelInitInternal options)
         {
+#if !UNITY_WEBGL
             return NativeMethods.ContextCreateDataChannel(self, ptr, label, ref options);
+#else
+            var optionsJson = JsonConvert.SerializeObject(options);
+            return NativeMethods.ContextCreateDataChannel(self, ptr, label, optionsJson);
+#endif
         }
 
         public void DeleteDataChannel(IntPtr ptr)
@@ -127,10 +147,17 @@ namespace Unity.WebRTC
             NativeMethods.ContextDeleteDataChannel(self, ptr);
         }
 
+#if !UNITY_WEBGL
         public IntPtr CreateMediaStream(string label)
         {
             return NativeMethods.ContextCreateMediaStream(self, label);
         }
+#else
+        public IntPtr CreateMediaStream()
+        {
+            return NativeMethods.ContextCreateMediaStream(self);
+        }
+#endif
 
         public void DeleteMediaStream(MediaStream stream)
         {
@@ -147,6 +174,7 @@ namespace Unity.WebRTC
             NativeMethods.MediaStreamRegisterOnRemoveTrack(self, stream, callback);
         }
 
+#if !UNITY_WEBGL
         public IntPtr GetRenderEventFunc()
         {
             return NativeMethods.GetRenderEventFunc(self);
@@ -156,16 +184,28 @@ namespace Unity.WebRTC
         {
             return NativeMethods.GetUpdateTextureFunc(self);
         }
+#endif
 
         public IntPtr CreateAudioTrack(string label)
         {
+#if !UNITY_WEBGL
             return NativeMethods.ContextCreateAudioTrack(self, label);
+#else
+            return NativeMethods.ContextCreateAudioTrack(self);
+#endif
         }
 
+#if !UNITY_WEBGL
         public IntPtr CreateVideoTrack(string label)
         {
             return NativeMethods.ContextCreateVideoTrack(self, label);
         }
+#else
+        public IntPtr CreateVideoTrack(IntPtr srcTexturePtr, IntPtr dstTexturePtr, int width, int height)
+        {
+            return NativeMethods.ContextCreateVideoTrack(self, srcTexturePtr, dstTexturePtr, width, height);
+        }
+#endif
 
         public void StopMediaStreamTrack(IntPtr track)
         {
@@ -192,6 +232,7 @@ namespace Unity.WebRTC
             NativeMethods.ContextDeleteStatsReport(self, report);
         }
 
+#if !UNITY_WEBGL
         public void SetVideoEncoderParameter(IntPtr track, int width, int height, GraphicsFormat format, IntPtr texturePtr)
         {
             NativeMethods.ContextSetVideoEncoderParameter(self, track, width, height, format, texturePtr);
@@ -201,18 +242,30 @@ namespace Unity.WebRTC
         {
             return NativeMethods.GetInitializationResult(self, track);
         }
+#endif
 
         public void GetSenderCapabilities(TrackKind kind, out IntPtr capabilities)
         {
+#if !UNITY_WEBGL
             NativeMethods.ContextGetSenderCapabilities(self, kind, out capabilities);
+#else
+            var ptr = NativeMethods.ContextGetSenderCapabilities(self, kind);
+            capabilities = ptr;
+#endif
         }
 
         public void GetReceiverCapabilities(TrackKind kind, out IntPtr capabilities)
         {
+#if !UNITY_WEBGL
             NativeMethods.ContextGetReceiverCapabilities(self, kind, out capabilities);
+#else
+            var ptr = NativeMethods.ContextGetReceiverCapabilities(self, kind);
+            capabilities = ptr;
+#endif
         }
 
 
+#if !UNITY_WEBGL
         internal void InitializeEncoder(IntPtr track)
         {
             renderFunction = renderFunction == IntPtr.Zero ? GetRenderEventFunc() : renderFunction;
@@ -236,5 +289,6 @@ namespace Unity.WebRTC
             textureUpdateFunction = textureUpdateFunction == IntPtr.Zero ? GetUpdateTextureFunc() : textureUpdateFunction;
             VideoDecoderMethods.UpdateRendererTexture(textureUpdateFunction, texture, rendererId);
         }
+#endif
     }
 }
